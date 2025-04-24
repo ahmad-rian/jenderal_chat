@@ -38,7 +38,7 @@
                                 :wire:key="'user-status-'.$selectedConversation->getOtherUser(auth()->id())->id" />
                         </div>
                     </div>
-                    <div class="dropdown dropdown-end">
+                    {{-- <div class="dropdown dropdown-end">
                         <label tabindex="0" class="btn btn-ghost btn-circle">
                             <i class="fas fa-ellipsis-vertical"></i>
                         </label>
@@ -48,7 +48,7 @@
                             <li><a href="#">Hapus chat</a></li>
                             <li><a href="#">Blokir</a></li>
                         </ul>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <!-- Messages Area -->
@@ -69,13 +69,13 @@
     </div>
 
     <!-- Debugging Tools untuk troubleshooting realtime - bisa dihapus di production -->
-    {{-- <div class="hidden">
+    <div class="hidden">
         <div id="debug-info">
             <p>Selected Conversation ID: {{ $selectedConversation ? $selectedConversation->id : 'None' }}</p>
             <p>Mobile View: {{ $isMobileView ? 'Yes' : 'No' }}</p>
             <p>Pusher Status: <span id="pusher-status">Checking...</span></p>
         </div>
-    </div> --}}
+    </div>
 </div>
 @push('scripts')
     <script>

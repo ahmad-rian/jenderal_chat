@@ -6,21 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="user-id" content="{{ auth()->id() }}">
-    <title>{{ config('app.name', 'Laravel') }} - Chat</title>
+    <title>{{ config('app.name', 'Laravel') }} </title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- DaisyUI & TailwindCSS -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.24/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- CSS Kustom untuk Chat dengan Fixed Layout -->
     <style>
-        /* Style untuk chat container dan elemen-elemennya */
         body {
             overflow: hidden;
             height: 100vh;
@@ -78,7 +73,6 @@
             z-index: 20;
         }
 
-        /* Style untuk chat bubbles */
         .chat {
             margin-bottom: 1rem;
         }
@@ -117,7 +111,6 @@
             margin-top: 0.25rem;
         }
 
-        /* Style untuk gambar di chat */
         .chat-image-preview {
             margin-top: 0.5rem;
             border-radius: 0.5rem;
@@ -130,7 +123,6 @@
             height: auto;
         }
 
-        /* Style untuk lampiran file di chat */
         .chat-attachment {
             display: flex;
             align-items: center;
@@ -141,7 +133,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Style untuk avatar online/offline */
         .avatar.online:before {
             content: '';
             position: absolute;
@@ -166,7 +157,6 @@
             border: 2px solid white;
         }
 
-        /* Style untuk auto-resize textarea */
         textarea[data-auto-resize] {
             min-height: 2.5rem;
             max-height: 120px;
@@ -175,12 +165,10 @@
             transition: height 0.1s ease;
         }
 
-        /* Style untuk dropdown yang tertutup */
         .dropdown-content {
             z-index: 1000 !important;
         }
 
-        /* Style untuk mobile view */
         @media (max-width: 767px) {
             .chat-sidebar {
                 width: 100%;
@@ -198,36 +186,25 @@
 
 <body class="bg-base-200">
     <div class="min-h-screen flex flex-col">
-        <!-- Navbar -->
         <x-layouts.chat-navigation />
-
-        <!-- Main Content -->
         <main class="flex-1 overflow-hidden">
             {{ $slot }}
         </main>
     </div>
 
-    <!-- Pusher Script -->
     <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
 
-    <!-- Script Kustom -->
     <script>
-        // Status online handler
         document.addEventListener('DOMContentLoaded', function() {
-            // Update online status
             updateOnlineStatus();
-
-            // Set interval untuk update status setiap 60 detik
             setInterval(updateOnlineStatus, 60000);
 
-            // Event listener untuk visibility change
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'visible') {
                     updateOnlineStatus();
                 }
             });
 
-            // Helper function untuk scroll messages container
             window.scrollMessagesToBottom = function(containerId, smooth = true) {
                 setTimeout(() => {
                     const container = document.getElementById(containerId);
@@ -244,14 +221,10 @@
                 }, 100);
             };
 
-            // Setup auto-resize untuk textarea
             setupTextareaAutoResize();
-
-            // Tambahkan mutation observer untuk container pesan
             setupMessageObserver();
         });
 
-        // Fungsi untuk update status online
         function updateOnlineStatus() {
             fetch('/user/status/online', {
                 method: 'POST',
@@ -262,7 +235,6 @@
             }).catch(error => console.error('Error updating status:', error));
         }
 
-        // Fungsi untuk setup auto-resize textarea
         function setupTextareaAutoResize() {
             document.querySelectorAll('textarea[data-auto-resize]').forEach(textarea => {
                 textarea.addEventListener('input', function() {
@@ -270,14 +242,12 @@
                     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
                 });
 
-                // Initially set height
                 if (textarea.value) {
                     textarea.dispatchEvent(new Event('input'));
                 }
             });
         }
 
-        // Fungsi untuk setup message observer
         function setupMessageObserver() {
             const containers = document.querySelectorAll('.messages-container, #message-container');
             containers.forEach(container => {
@@ -294,16 +264,13 @@
             });
         }
 
-        // Listener untuk event beforeunload
         window.addEventListener('beforeunload', function() {
             navigator.sendBeacon('/user/status/offline', JSON.stringify({
                 _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }));
         });
 
-        // Register custom Livewire hooks
         document.addEventListener('livewire:initialized', () => {
-            // Hook untuk auto-scroll messages
             Livewire.on('messageAdded', (params) => {
                 window.scrollMessagesToBottom(params.containerId || 'message-container');
             });
@@ -312,7 +279,6 @@
                 window.scrollMessagesToBottom('message-container');
             });
 
-            // Hook untuk focus input setelah kirim pesan
             Livewire.on('focusMessageInput', () => {
                 setTimeout(() => {
                     const textarea = document.querySelector('textarea[wire\\:model="messageText"]');
@@ -322,11 +288,7 @@
                 }, 100);
             });
 
-            // Hook untuk conversation selected
             Livewire.on('conversationSelected', (conversationId) => {
-                console.log('Conversation selected:', conversationId);
-
-                // Untuk mobile view
                 if (window.innerWidth < 768) {
                     const sidebar = document.querySelector('.chat-sidebar');
                     const main = document.querySelector('.chat-main');
@@ -337,29 +299,23 @@
                     }
                 }
 
-                // Trigger scroll ke bawah setelah konten dimuat
                 setTimeout(() => {
                     window.scrollMessagesToBottom('message-container');
                 }, 300);
             });
         });
 
-        // Pastikan Pusher diinisialisasi dengan benar
         document.addEventListener('DOMContentLoaded', function() {
             window.Echo.private(`conversation.${conversationId}`)
                 .listen('.NewMessageSent', (e) => {
-                    console.log('New message received via Pusher:', e);
                     Livewire.dispatch('messageReceived');
                 })
                 .listen('.MessageRead', (e) => {
-                    console.log('Message read event received via Pusher:', e);
                     Livewire.dispatch('messageRead', e);
                 });
 
-            // Debugging Pusher
             window.Echo.connector.pusher.connection.bind('connected', () => {
                 console.log('Pusher connected successfully!');
-                console.log('Socket ID:', window.Echo.socketId());
             });
 
             window.Echo.connector.pusher.connection.bind('error', (err) => {
@@ -367,7 +323,6 @@
             });
         });
 
-        // Helper function to check Pusher connection
         window.checkPusherConnection = function() {
             if (window.Echo && window.Echo.connector && window.Echo.connector.pusher) {
                 return window.Echo.connector.pusher.connection.state;
