@@ -1,15 +1,18 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+namespace App\Http\Controllers\Api;
+
 use App\Events\UserOnlineStatusChanged;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/user/status/online', function (Request $request) {
+class UserStatusController extends Controller
+{
+    /**
+     * Update user status to online
+     */
+    public function online(Request $request)
+    {
         $user = $request->user();
         $user->update([
             'is_online' => true,
@@ -19,9 +22,13 @@ Route::middleware('auth:sanctum')->group(function () {
         broadcast(new UserOnlineStatusChanged($user, true))->toOthers();
 
         return response()->json(['status' => 'success']);
-    });
+    }
 
-    Route::post('/user/status/offline', function (Request $request) {
+    /**
+     * Update user status to offline
+     */
+    public function offline(Request $request)
+    {
         $user = $request->user();
         $user->update([
             'is_online' => false,
@@ -31,5 +38,5 @@ Route::middleware('auth:sanctum')->group(function () {
         broadcast(new UserOnlineStatusChanged($user, false))->toOthers();
 
         return response()->json(['status' => 'success']);
-    });
-});
+    }
+}

@@ -81,35 +81,35 @@ class User extends Authenticatable
     /**
      * Get conversations where user is the sender
      */
-    // public function sentConversations()
-    // {
-    //     return $this->hasMany(Conversation::class, 'sender_id');
-    // }
+    public function sentConversations()
+    {
+        return $this->hasMany(Conversation::class, 'sender_id');
+    }
 
-    // /**
-    //  * Get conversations where user is the receiver
-    //  */
-    // public function receivedConversations()
-    // {
-    //     return $this->hasMany(Conversation::class, 'receiver_id');
-    // }
+    /**
+     * Get conversations where user is the receiver
+     */
+    public function receivedConversations()
+    {
+        return $this->hasMany(Conversation::class, 'receiver_id');
+    }
 
-    // /**
-    //  * Get all conversations for this user (as sender or receiver)
-    //  */
-    // public function conversations()
-    // {
-    //     return Conversation::where('sender_id', $this->id)
-    //         ->orWhere('receiver_id', $this->id);
-    // }
+    /**
+     * Get all conversations for this user (as sender or receiver)
+     */
+    public function conversations()
+    {
+        return Conversation::where('sender_id', $this->id)
+            ->orWhere('receiver_id', $this->id);
+    }
 
-    // /**
-    //  * Get all messages sent by this user
-    //  */
-    // public function messages()
-    // {
-    //     return $this->hasMany(Message::class, 'sender_id');
-    // }
+    /**
+     * Get all messages sent by this user
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
 
     /**
      * Get conversations with unread messages
@@ -125,18 +125,18 @@ class User extends Authenticatable
     /**
      * Get count of unread messages
      */
-    // public function unreadMessagesCount()
-    // {
-    //     return Message::whereHas('conversation', function ($query) {
-    //         $query->where(function ($q) {
-    //             $q->where('sender_id', $this->id)
-    //                 ->orWhere('receiver_id', $this->id);
-    //         });
-    //     })
-    //         ->where('sender_id', '!=', $this->id)
-    //         ->where('is_read', false)
-    //         ->count();
-    // }
+    public function unreadMessagesCount()
+    {
+        return Message::whereHas('conversation', function ($query) {
+            $query->where(function ($q) {
+                $q->where('sender_id', $this->id)
+                    ->orWhere('receiver_id', $this->id);
+            });
+        })
+            ->where('sender_id', '!=', $this->id)
+            ->where('is_read', false)
+            ->count();
+    }
 
     /**
      * Set user as online
@@ -172,5 +172,15 @@ class User extends Authenticatable
         } else {
             return 'Offline';
         }
+    }
+
+    public function allConversations()
+    {
+        return Conversation::where(function ($query) {
+            $query->where('sender_id', $this->id)
+                ->orWhere('receiver_id', $this->id);
+        })
+            ->with(['sender', 'receiver'])
+            ->latest('last_message_at');
     }
 }
